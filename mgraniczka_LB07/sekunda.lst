@@ -1,0 +1,183 @@
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 1
+
+
+
+
+
+       MCS-51 Family Macro Assembler   A S E M - 5 1   V 1.3
+       =====================================================
+
+
+
+	Source File:	sekunda.asm
+	Object File:	sekunda.hex
+	List File:	sekunda.lst
+
+
+
+ Line  I  Addr  Code            Source
+
+    1:				; Licznik T0 ma pojemność 65535, co zapełnia się w około 71ms.
+    2:				; By zapełnił się w 1s musiałby mieć pojemność 921600.
+    3:				; Można jednak w nim zapisać wartość taką, by przepełniał się co 50ms.
+    4:				; 50ms zajmuje mu wykonanie 46080 cykli.
+    5:				; Aby więc przepełniał się co 50ms należy ustawić mu wartość równą 65535-46080=19455.
+    6:				; Wtedy zaczynając z wartością 19455, przepełnienie zajmie mu dokłądnie 46080 cykli, czyli 50m
+				s.
+    7:				; 1s=50ms*20
+    8:				; Musimy więc zmieniać sygnał diody co 20 przepełnień licznika przepełniajacego się co 50ms.
+    9:				; 19455=75 255(h)=01001011 11111111b
+   10:				; Do TH0 musimy więc zapisać wartość 75=01001011b
+   11:				; Do TL0 -> 255=11111111b
+   12:
+   13:		N      0000	ORG 0000h
+   14:	  0000			_RESET:
+   15:	  0000	02 01 00		LJMP _INIT
+   16:
+   17:		N      000B	ORG 0Bh
+   18:	  000B			_INT_T0:
+   19:	  000B	04			INC A	;zwiększamy A o 1
+   20:	  000C			_IF:
+   21:	  000C	B4 14 0B		CJNE A,#20,_ELSE	;Jeżeli A!=20, skacz do _ELSE; Jeżeli A=20, wykonaj instrukcje pon
+				iżej
+   22:	  000F	B2 97			CPL 097h	;zmieniamy dotychczasowy sygnał docierający do diody
+   23:	  0011	74 00			MOV A,#0	;zerujemy A, bo móc znowu zliczać do 20
+   24:	  0013	75 8A FF		MOV TL0,#11111111b	;ponownie ustawiamy TL0 na odpowiednią wartość
+   25:	  0016	75 8C 4B		MOV TH0,#01001011b	;ponownie ustawiamy TH0 na odpowiednią wartość
+   26:	  0019	32			RETI	;powrót z procedury przerwaniowej
+   27:	  001A			_ELSE:
+   28:	  001A	32			RETI	;powrót z proceduty przerwaniowej
+   29:
+   30:		N      0100	ORG 0100h
+   31:	  0100			_INIT:
+   32:	  0100	74 00			MOV A,#0	;inicjujemy A na wartość 0
+   33:	  0102	75 8A FF		MOV TL0,#11111111b	;ustawiamy odpowiednią wartość dla TL0
+   34:	  0105	75 8C 4B		MOV TH0,#01001011b	;ustawiamy odpowiednią wartość dla TH0
+   35:	  0108	53 88 CF		ANL TCON,#11001111b ;ustawiamy TF0 i TR0 na 0, bo licznik na pewno jeszcze niczego nie zlicz
+				ał
+   36:	  010B	53 89 F1		ANL TMOD,#11110001b ;ustawiamy GATE0,C/T0 i T0M1 na 0, by licznik działał z odpowiednich s
+				ygnałów i w odpowiednim trybie, reszta zostaje nie zmieniona
+   37:	  010E	43 89 01		ORL TMOD,#00000001b ;ustawiamy T0M0 na 1, dzięki czemu teraz T0M1 i T0M0 mają odpowiednio
+				wartość 01, i w związku z czym licznik działą w trybie 01 - czyli 16 bitowym
+   38:	  0111	43 A8 82		ORL IE,#10000010b ;ustawiamy EA i EX1 na 1, by włączyć możliwość przerwać (rejestr IE
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 2
+
+
+
+ Line  I  Addr  Code            Source
+
+				 - Interrupt Enable)
+   39:	  0114	43 88 10		ORL TCON,#00010000b ;ustawiamy TR0 na 1, by licznik zaczął działać
+   40:	  0117			_LOOP:
+   41:	  0117	02 01 17		LJMP _LOOP	;nieskończona pętla
+   42:				END
+
+
+
+
+
+                     register banks used:  ---
+
+                     no errors
+
+
+
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 3
+
+
+
+
+
+	       L I S T   O F   S Y M B O L S
+	       =============================
+
+
+SYMBOL				  TYPE     VALUE	LINE
+------------------------------------------------------------
+??ASEM_51			  NUMBER    8051
+??VERSION			  NUMBER    0130
+AC				  BIT	      D6
+ACC				  DATA	      E0
+B				  DATA	      F0
+CY				  BIT	      D7
+DPH				  DATA	      83
+DPL				  DATA	      82
+EA				  BIT	      AF
+ES				  BIT	      AC
+ET0				  BIT	      A9
+ET1				  BIT	      AB
+EX0				  BIT	      A8
+EX1				  BIT	      AA
+EXTI0				  CODE	    0003
+EXTI1				  CODE	    0013
+F0				  BIT	      D5
+IE				  DATA	      A8
+IE0				  BIT	      89
+IE1				  BIT	      8B
+INT0				  BIT	      B2
+INT1				  BIT	      B3
+IP				  DATA	      B8
+IT0				  BIT	      88
+IT1				  BIT	      8A
+OV				  BIT	      D2
+P				  BIT	      D0
+P0				  DATA	      80
+P1				  DATA	      90
+P2				  DATA	      A0
+P3				  DATA	      B0
+PCON				  DATA	      87
+PS				  BIT	      BC
+PSW				  DATA	      D0
+PT0				  BIT	      B9
+PT1				  BIT	      BB
+PX0				  BIT	      B8
+PX1				  BIT	      BA
+RB8				  BIT	      9A
+RD				  BIT	      B7
+REN				  BIT	      9C
+RESET				  CODE	    0000
+RI				  BIT	      98
+RS0				  BIT	      D3
+RS1				  BIT	      D4
+RXD				  BIT	      B0
+SBUF				  DATA	      99
+SCON				  DATA	      98
+SINT				  CODE	    0023
+SM0				  BIT	      9F
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 4
+
+
+
+SYMBOL				  TYPE     VALUE	LINE
+------------------------------------------------------------
+SM1				  BIT	      9E
+SM2				  BIT	      9D
+SP				  DATA	      81
+T0				  BIT	      B4
+T1				  BIT	      B5
+TB8				  BIT	      9B
+TCON				  DATA	      88
+TF0				  BIT	      8D
+TF1				  BIT	      8F
+TH0				  DATA	      8C
+TH1				  DATA	      8D
+TI				  BIT	      99
+TIMER0				  CODE	    000B
+TIMER1				  CODE	    001B
+TL0				  DATA	      8A
+TL1				  DATA	      8B
+TMOD				  DATA	      89
+TR0				  BIT	      8C
+TR1				  BIT	      8E
+TXD				  BIT	      B1
+WR				  BIT	      B6
+_ELSE				  CODE	    001A	  27
+_IF				  CODE	    000C	  20
+_INIT				  CODE	    0100	  31
+_INT_T0				  CODE	    000B	  18
+_LOOP				  CODE	    0117	  40
+_RESET				  CODE	    0000	  14

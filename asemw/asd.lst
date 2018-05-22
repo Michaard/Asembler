@@ -1,0 +1,211 @@
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 1
+
+
+
+
+
+       MCS-51 Family Macro Assembler   A S E M - 5 1   V 1.3
+       =====================================================
+
+
+
+	Source File:	asd.asm
+	Object File:	asd.hex
+	List File:	asd.lst
+
+
+
+ Line  I  Addr  Code            Source
+
+    1:				$ NOMOD51
+    2:				$ INCLUDE (8051_mgraniczka.MCU)
+    3: 1			; Plik w³asnych definicji
+    4: 1			; Micha³ Graniczka
+    5: 1			; ==========================
+    6: 1
+    7: 1	N	 97	_LED		BIT	097h
+    8: 1	N	 96	_WYSW		BIT	096h
+    9: 1	N	 7F	_COUNTER	DATA	07Fh
+   10: 1	N	 7E	_ID_WSK		DATA	07Eh
+   11: 1	N	 7D	_W1_VAL		DATA	07Dh
+   12: 1	N	 7C	_W2_VAL		DATA	07Ch
+   13: 1	N	 7B	_W3_VAL		DATA	07Bh
+   14: 1	N	 7A	_SEC		DATA	07Ah
+   15: 1	N	 88	TCON		DATA	088H
+   16: 1	N	 89	TMOD		DATA	089H
+   17: 1	N	 8A	TL0		DATA	08AH
+   18: 1	N	 8C	TH0		DATA	08CH
+   19: 1	N	 A8	IE		DATA	0A8H
+   20: 1	N	 F0	B		DATA	0F0H
+   21:
+   22:		N      4BFF	T0_VAL EQU (65535-46080)
+   23:		N      00FF	TL0_VAL EQU (T0_VAL mod 256)
+   24:		N      004B	TH0_VAL EQU (T0_VAL/256)
+   25:		N      FF38	CSDB16 EQU 0FF38h
+   26:		N      FF30	CSDS16 EQU 0FF30h
+   27:
+   28:		N      0000	ORG 0000h
+   29:	  0000			_RESET:
+   30:	  0000	02 01 00		LJMP _INIT
+   31:
+   32:		N      000B	ORG 0Bh
+   33:	  000B			_INT_T0:
+   34:	  000B	43 8A FF		ORL TL0,#TL0_VAL
+   35:	  000E	75 8C 4B		MOV TH0,#TH0_VAL
+   36:	  0011	05 7F			INC _COUNTER
+   37:	  0013	32			RETI
+   38:
+   39:		N      0100	ORG 0100h
+   40:	  0100			_INIT:
+   41:	  0100	75 8A FF		MOV TL0,#TL0_VAL
+   42:	  0103	75 8C 4B		MOV TH0,#TH0_VAL
+   43:	  0106	53 88 CF		ANL TCON,#11001111b
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 2
+
+
+
+ Line  I  Addr  Code            Source
+
+   44:	  0109	53 89 F1		ANL TMOD,#11110001b
+   45:	  010C	43 89 01		ORL TMOD,#00000001b
+   46:	  010F	43 A8 82		ORL IE,#10000010b
+   47:
+   48:	  0112	75 7F 00		MOV _COUNTER,#0d
+   49:	  0115	75 7A 00		MOV _SEC,#0d
+   50:
+   51:	  0118	75 7E 01		MOV _ID_WSK,#00000001b
+   52:	  011B	75 7D 3F		MOV _W1_VAL,#00111111b
+   53:	  011E	75 7C 3F		MOV _W2_VAL,#00111111b
+   54:	  0121	75 7B 3F		MOV _W3_VAL,#00111111b
+   55:
+   56:	  0124	43 88 10		ORL TCON,#00010000b
+   57:	  0127			_LOOP:
+   58:	  0127	E5 7F			MOV A,_COUNTER
+   59:	  0129	B4 14 0A		CJNE A,#20d,_CD
+   60:	  012C	75 7F 00		MOV _COUNTER,#0d
+   61:	  012F	05 7A			INC _SEC
+   62:	  0131	12 01 3C		LCALL _SPLIT
+   63:	  0134	B2 97			CPL _LED
+   64:	  0136			_CD:
+   65:	  0136	12 01 4F		LCALL _REFRESH
+   66:	  0139	02 01 27		LJMP _LOOP
+   67:
+   68:	  013C			_SPLIT:
+   69:	  013C	E5 7A			MOV A,_SEC
+   70:	  013E	75 F0 0A		MOV B,#10d
+   71:	  0141	84			DIV AB
+   72:	  0142	85 F0 7D		MOV _W1_VAL,B
+   73:	  0145	75 F0 0A		MOV B,#10d
+   74:	  0148	84			DIV AB
+   75:	  0149	85 F0 7C		MOV _W2_VAL,B
+   76:	  014C	F5 7B			MOV _W3_VAL,A
+   77:	  014E	22			RET
+   78:
+   79:	  014F			_REFRESH:
+   80:	  014F	E5 7E			MOV A,_ID_WSK
+   81:	  0151	23			RL A
+   82:	  0152	F5 7E			MOV _ID_WSK,A
+   83:	  0154	B4 08 05		CJNE A,#00001000b,_W1
+   84:	  0157	75 7E 01		MOV _ID_WSK,#00000001b
+   85:	  015A	E5 7E			MOV A,_ID_WSK
+   86:	  015C			_W1:
+   87:	  015C	B4 01 05		CJNE A,#00000001b,_W2
+   88:	  015F	A8 7D			MOV R0,_W1_VAL
+   89:	  0161	02 01 71		LJMP _AKCJE_KONCOWE
+   90:	  0164			_W2:
+   91:	  0164	B4 02 05		CJNE A,#00000010b,_W3
+   92:	  0167	A8 7C			MOV R0,_W2_VAL
+   93:	  0169	02 01 71		LJMP _AKCJE_KONCOWE
+   94:	  016C			_W3:
+   95:	  016C	B4 04 02		CJNE A,#00000100b,_AKCJE_KONCOWE
+   96:	  016F	A8 7B			MOV R0,_W3_VAL
+   97:	  0171			_AKCJE_KONCOWE:
+   98:	  0171	D2 96		    SETB _WYSW
+   99:	  0173	E5 7E			MOV A,_ID_WSK
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 3
+
+
+
+ Line  I  Addr  Code            Source
+
+  100:	  0175	90 FF 30	    MOV DPTR,#CSDS16
+  101:	  0178	F0			MOVX @DPTR,A
+  102:
+  103:	  0179	E8		    MOV A,R0
+  104:	  017A	90 FF 38		MOV DPTR,#CSDB16
+  105:	  017D	F0			MOVX @DPTR,A
+  106:	  017E	C2 96			CLR _WYSW
+  107:	  0180	22			RET
+  108:
+  109:	  0181			_WZORCE:
+  110:	  0181	3F			DB 00111111b
+  111:	  0182	06			DB 00000110b
+  112:	  0183	5B			DB 01011011b
+  113:	  0184	4F			DB 01001111b
+  114:	  0185	66			DB 01100110b
+  115:	  0186	6D			DB 01101101b
+  116:	  0187	7D			DB 01111101b
+  117:	  0188	07			DB 00000111b
+  118:	  0189	7F			DB 01111111b
+  119:	  018A	6F			DB 01101111b
+  120:				END
+
+
+
+
+
+                     register banks used:  ---
+
+                     no errors
+
+
+
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 4
+
+
+
+
+
+	       L I S T   O F   S Y M B O L S
+	       =============================
+
+
+SYMBOL				  TYPE     VALUE	LINE
+------------------------------------------------------------
+??ASEM_51			  NUMBER    8051
+??VERSION			  NUMBER    0130
+B				  DATA	      F0	  20
+CSDB16				  NUMBER    FF38	  25
+CSDS16				  NUMBER    FF30	  26
+IE				  DATA	      A8	  19
+T0_VAL				  NUMBER    4BFF	  22
+TCON				  DATA	      88	  15
+TH0				  DATA	      8C	  18
+TH0_VAL				  NUMBER    004B	  24
+TL0				  DATA	      8A	  17
+TL0_VAL				  NUMBER    00FF	  23
+TMOD				  DATA	      89	  16
+_AKCJE_KONCOWE			  CODE	    0171	  97
+_CD				  CODE	    0136	  64
+_COUNTER			  DATA	      7F	   9
+_ID_WSK				  DATA	      7E	  10
+_INIT				  CODE	    0100	  40
+_INT_T0				  CODE	    000B	  33
+_LED				  BIT	      97	   7
+_LOOP				  CODE	    0127	  57
+_REFRESH			  CODE	    014F	  79
+_RESET				  CODE	    0000	  29
+_SEC				  DATA	      7A	  14
+_SPLIT				  CODE	    013C	  68
+_W1				  CODE	    015C	  86
+_W1_VAL				  DATA	      7D	  11
+_W2				  CODE	    0164	  90
+_W2_VAL				  DATA	      7C	  12
+_W3				  CODE	    016C	  94
+_W3_VAL				  DATA	      7B	  13
+_WYSW				  BIT	      96	   8
+_WZORCE				  CODE	    0181	 109

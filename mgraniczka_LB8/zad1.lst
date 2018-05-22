@@ -1,0 +1,112 @@
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 1
+
+
+
+
+
+       MCS-51 Family Macro Assembler   A S E M - 5 1   V 1.3
+       =====================================================
+
+
+
+	Source File:	zad1.asm
+	Object File:	zad1.hex
+	List File:	zad1.lst
+
+
+
+ Line  I  Addr  Code            Source
+
+    1:				$ NOMOD51
+    2:				$ INCLUDE (8051_mgraniczka.MCU)
+    3: 1			; Plik w³asnych definicji
+    4: 1			; Micha³ Graniczka
+    5: 1			; ==========================
+    6: 1
+    7: 1	N	 97	_LED		BIT	097h
+    8: 1	N	 96	_WYSW		BIT	096h
+    9: 1	N	 7F	_COUNTER	DATA	07Fh
+   10: 1	N	 7E	_ID_WSK		DATA	07Eh
+   11: 1	N	 7D	_W1_VAL		DATA	07Dh
+   12: 1	N	 7C	_W2_VAL		DATA	07Ch
+   13: 1	N	 7B	_W3_VAL		DATA	07Bh
+   14: 1	N	 7A	_SEC		DATA	07Ah
+   15: 1	N	 88	TCON		DATA	088H
+   16: 1	N	 89	TMOD		DATA	089H
+   17: 1	N	 8A	TL0		DATA	08AH
+   18: 1	N	 8C	TH0		DATA	08CH
+   19: 1	N	 A8	IE		DATA	0A8H
+   20: 1	N	 F0	B		DATA	0F0H
+   21: 1	N	 B0	P3		DATA	0B0H
+   22:		N      FF21	CSKB0 EQU 0FF21h
+   23:
+   24:		N      0000	ORG 0000h
+   25:	  0000			_RESET:
+   26:	  0000	02 01 00		LJMP _INIT
+   27:
+   28:		N      0100	ORG 0100h
+   29:	  0100			_INIT:
+   30:	  0100	78 21			MOV R0,#CSKB0
+   31:	  0102			_LOOP:
+   32:	  0102	E2			MOVX A,@R0
+   33:	  0103			_IF:
+   34:	  0103	B4 FE 05		CJNE A,#11111110b,_ELSE
+   35:	  0106	C2 97			CLR _LED
+   36:	  0108	02 01 02		LJMP _LOOP
+   37:	  010B			_ELSE:
+   38:	  010B	D2 97			SETB _LED
+   39:	  010D	02 01 02		LJMP _LOOP
+   40:				END
+
+
+
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 2
+
+
+
+
+
+                     register banks used:  ---
+
+                     no errors
+
+
+
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 3
+
+
+
+
+
+	       L I S T   O F   S Y M B O L S
+	       =============================
+
+
+SYMBOL				  TYPE     VALUE	LINE
+------------------------------------------------------------
+??ASEM_51			  NUMBER    8051
+??VERSION			  NUMBER    0130
+B				  DATA	      F0	  20
+CSKB0				  NUMBER    FF21	  22
+IE				  DATA	      A8	  19
+P3				  DATA	      B0	  21
+TCON				  DATA	      88	  15
+TH0				  DATA	      8C	  18
+TL0				  DATA	      8A	  17
+TMOD				  DATA	      89	  16
+_COUNTER			  DATA	      7F	   9
+_ELSE				  CODE	    010B	  37
+_ID_WSK				  DATA	      7E	  10
+_IF				  CODE	    0103	  33
+_INIT				  CODE	    0100	  29
+_LED				  BIT	      97	   7
+_LOOP				  CODE	    0102	  31
+_RESET				  CODE	    0000	  25
+_SEC				  DATA	      7A	  14
+_W1_VAL				  DATA	      7D	  11
+_W2_VAL				  DATA	      7C	  12
+_W3_VAL				  DATA	      7B	  13
+_WYSW				  BIT	      96	   8

@@ -1,0 +1,250 @@
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 1
+
+
+
+
+
+       MCS-51 Family Macro Assembler   A S E M - 5 1   V 1.3
+       =====================================================
+
+
+
+	Source File:	zad3.asm
+	Object File:	zad3.hex
+	List File:	zad3.lst
+
+
+
+ Line  I  Addr  Code            Source
+
+    1:				$ NOMOD51
+    2:				$ INCLUDE (8051_mgraniczka.MCU)
+    3: 1			; Plik w³asnych definicji
+    4: 1			; Micha³ Graniczka
+    5: 1			; ==========================
+    6: 1
+    7: 1	N	 30	_COMMAND	DATA	030h
+    8: 1	N	 31	_DATA		DATA	031h
+    9: 1	N	 97	_LED		BIT		097h
+   10: 1	N	 96	_WYSW		BIT		096h
+   11: 1	N	 7F	_COUNTER	DATA	07Fh
+   12: 1	N	 7E	_ID_WSK		DATA	07Eh
+   13: 1	N	 7D	_W1_VAL		DATA	07Dh
+   14: 1	N	 7C	_W2_VAL		DATA	07Ch
+   15: 1	N	 7B	_W3_VAL		DATA	07Bh
+   16: 1	N	 7A	_FREQ		DATA	07Ah
+   17: 1	N	 88	TCON		DATA	088H
+   18: 1	N	 89	TMOD		DATA	089H
+   19: 1	N	 8A	TL0			DATA	08AH
+   20: 1	N	 8C	TH0			DATA	08CH
+   21: 1	N	 A8	IE			DATA	0A8H
+   22: 1	N	 F0	B			DATA	0F0H
+   23: 1	N	 B0	P3			DATA	0B0H
+   24: 1	N	 E0	ACC			DATA	0E0h
+   25:		N      FF82	LCDRC EQU 0FF82h
+   26:		N      FF80	LCDWC EQU 0FF80h
+   27:		N      FF81	LCDWD EQU 0FF81h
+   28:		N      4BFF	T0_VAL EQU (65535-46080)
+   29:		N      00FF	TL0_VAL EQU (T0_VAL mod 256)
+   30:		N      004B	TH0_VAL EQU (T0_VAL/256)
+   31:		N      FF30	CSDS EQU 0FF30h
+   32:
+   33:		N      0000	ORG 0000h
+   34:	  0000			_RESET:
+   35:	  0000	02 01 00		LJMP _INIT
+   36:
+   37:		N      000B	ORG 0Bh
+   38:	  000B			_INT_T0:
+   39:	  000B	43 8A FF		ORL TL0,#TL0_VAL
+   40:	  000E	75 8C 4B		MOV TH0,#TH0_VAL
+   41:	  0011	05 7F			INC _COUNTER
+   42:	  0013	32			RETI
+   43:
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 2
+
+
+
+ Line  I  Addr  Code            Source
+
+   44:		N      0100	ORG 0100h
+   45:	  0100			_INIT:
+   46:	  0100	75 8A FF		MOV TL0,#TL0_VAL
+   47:	  0103	75 8C 4B		MOV TH0,#TH0_VAL
+   48:	  0106	53 88 CF		ANL TCON,#11001111b
+   49:	  0109	53 89 F1		ANL TMOD,#11110001b
+   50:	  010C	43 89 01		ORL TMOD,#00000001b
+   51:	  010F	43 A8 82		ORL IE,#10000010b
+   52:	  0112	43 88 10		ORL TCON,#00010000b
+   53:
+   54:	  0115	75 7F 00		MOV _COUNTER,#0d
+   55:
+   56:	  0118	75 30 01		MOV _COMMAND,#00000001b         ;clear display
+   57:	  011B	12 01 5D		LCALL _SEND_COMMAND_TO_LCD
+   58:	  011E	75 30 38		MOV _COMMAND,#00111000b         ;8bit danych, 2 linie, czcionka 5x10
+   59:	  0121	12 01 5D		LCALL _SEND_COMMAND_TO_LCD
+   60:	  0124	75 30 0F		MOV _COMMAND,#00001111b			;wysw. ON, cursor ON i miganie
+   61:	  0127	12 01 5D		LCALL _SEND_COMMAND_TO_LCD
+   62:	  012A	75 30 07		MOV _COMMAND,#00000111b         ;automatyczna inkrementacja adresu danej i podazanie kursora
+   63:	  012D	12 01 5D		LCALL _SEND_COMMAND_TO_LCD
+   64:
+   65:	  0130	7F 00			MOV R7,#0d
+   66:	  0132			_PRINT:
+   67:	  0132	90 01 71		MOV DPTR,#_STRING
+   68:	  0135	EF			MOV A,R7
+   69:	  0136	93			MOVC A,@A+DPTR
+   70:
+   71:	  0137	F5 31			MOV _DATA,A
+   72:	  0139	12 01 67		LCALL _SEND_DATA_TO_LCD
+   73:
+   74:	  013C	0F			INC R7
+   75:	  013D	BF 27 F2		CJNE R7,#39d,_PRINT
+   76:	  0140			_LOOP:
+   77:	  0140	E5 7F			MOV A,_COUNTER
+   78:	  0142	B4 0A 09		CJNE A,#10d,_CD
+   79:	  0145	75 7F 00		MOV _COUNTER,#0d
+   80:	  0148	75 30 18		MOV _COMMAND,#00011000b		;przesun wysw. w lewo
+   81:	  014B	12 01 5D		LCALL _SEND_COMMAND_TO_LCD
+   82:	  014E			_CD:
+   83:	  014E	02 01 40		LJMP _LOOP
+   84:
+   85:	  0151			_WAIT_LCD_AV:
+   86:	  0151	90 FF 82		MOV DPTR,#LCDRC
+   87:	  0154	E0			MOVX A,@DPTR
+   88:	  0155	F5 E0			MOV ACC,A
+   89:	  0157	30 E7 02		JNB ACC.7,_AV
+   90:	  015A	80 F5			JMP _WAIT_LCD_AV
+   91:	  015C			_AV:
+   92:	  015C	22			RET
+   93:
+   94:	  015D			_SEND_COMMAND_TO_LCD:
+   95:	  015D	12 01 51		LCALL _WAIT_LCD_AV
+   96:	  0160	90 FF 80		MOV DPTR,#LCDWC
+   97:	  0163	E5 30			MOV A,_COMMAND
+   98:	  0165	F0			MOVX @DPTR,A
+   99:	  0166	22			RET
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 3
+
+
+
+ Line  I  Addr  Code            Source
+
+  100:
+  101:	  0167			_SEND_DATA_TO_LCD:
+  102:	  0167	12 01 51		LCALL _WAIT_LCD_AV
+  103:	  016A	90 FF 81		MOV DPTR,#LCDWD
+  104:	  016D	E5 31			MOV A,_DATA
+  105:	  016F	F0			MOVX @DPTR,A
+  106:	  0170	22			RET
+  107:
+  108:	  0171			_STRING:
+  109:	  0171	41			DB 65	;A
+  110:	  0172	75			DB 117	;u
+  111:	  0173	74			DB 116	;t
+  112:	  0174	6F			DB 111	;o
+  113:	  0175	72			DB 114	;r
+  114:	  0176	65			DB 101	;e
+  115:	  0177	6D			DB 109	;m
+  116:	  0178	20			DB 32	;_
+  117:	  0179	70			DB 112	;p
+  118:	  017A	72			DB 114	;r
+  119:	  017B	6F			DB 111	;o
+  120:	  017C	67			DB 103	;g
+  121:	  017D	72			DB 114	;r
+  122:	  017E	61			DB 97	;a
+  123:	  017F	6D			DB 109	;m
+  124:	  0180	75			DB 117	;u
+  125:	  0181	20			DB 32	;_
+  126:	  0182	6A			DB 106	;j
+  127:	  0183	65			DB 101	;e
+  128:	  0184	73			DB 115	;s
+  129:	  0185	74			DB 116	;t
+  130:	  0186	3A			DB 58	;:
+  131:	  0187	20			DB 32	;_
+  132:	  0188	4D			DB 77	;M
+  133:	  0189	69			DB 105 	;i
+  134:	  018A	63			DB 99 	;c
+  135:	  018B	68			DB 104 	;h
+  136:	  018C	61			DB 97 	;a
+  137:	  018D	6C			DB 108	;l
+  138:	  018E	20			DB 32	;_
+  139:	  018F	47			DB 71 	;G
+  140:	  0190	72			DB 114 	;r
+  141:	  0191	61			DB 97 	;a
+  142:	  0192	6E			DB 110 	;n
+  143:	  0193	69			DB 105 	;i
+  144:	  0194	63			DB 99 	;c
+  145:	  0195	7A			DB 122 	;z
+  146:	  0196	6B			DB 107 	;k
+  147:	  0197	61			DB 97 	;a
+  148:
+  149:				END
+
+
+
+
+
+                     register banks used:  ---
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 4
+
+
+
+
+                     no errors
+
+
+
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 5
+
+
+
+
+
+	       L I S T   O F   S Y M B O L S
+	       =============================
+
+
+SYMBOL				  TYPE     VALUE	LINE
+------------------------------------------------------------
+??ASEM_51			  NUMBER    8051
+??VERSION			  NUMBER    0130
+ACC				  DATA	      E0	  24
+B				  DATA	      F0	  22
+CSDS				  NUMBER    FF30	  31
+IE				  DATA	      A8	  21
+LCDRC				  NUMBER    FF82	  25
+LCDWC				  NUMBER    FF80	  26
+LCDWD				  NUMBER    FF81	  27
+P3				  DATA	      B0	  23
+T0_VAL				  NUMBER    4BFF	  28
+TCON				  DATA	      88	  17
+TH0				  DATA	      8C	  20
+TH0_VAL				  NUMBER    004B	  30
+TL0				  DATA	      8A	  19
+TL0_VAL				  NUMBER    00FF	  29
+TMOD				  DATA	      89	  18
+_AV				  CODE	    015C	  91
+_CD				  CODE	    014E	  82
+_COMMAND			  DATA	      30	   7
+_COUNTER			  DATA	      7F	  11
+_DATA				  DATA	      31	   8
+_FREQ				  DATA	      7A	  16
+_ID_WSK				  DATA	      7E	  12
+_INIT				  CODE	    0100	  45
+_INT_T0				  CODE	    000B	  38
+_LED				  BIT	      97	   9
+_LOOP				  CODE	    0140	  76
+_PRINT				  CODE	    0132	  66
+_RESET				  CODE	    0000	  34
+_SEND_COMMAND_TO_LCD		  CODE	    015D	  94
+_SEND_DATA_TO_LCD		  CODE	    0167	 101
+_STRING				  CODE	    0171	 108
+_W1_VAL				  DATA	      7D	  13
+_W2_VAL				  DATA	      7C	  14
+_W3_VAL				  DATA	      7B	  15
+_WAIT_LCD_AV			  CODE	    0151	  85
+_WYSW				  BIT	      96	  10

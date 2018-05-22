@@ -1,0 +1,13 @@
+; Plik w³asnych definicji
+; Micha³ Graniczka
+; ==========================
+
+P1	DATA	090h
+SP	DATA	081H
+DPL	DATA	082H
+DPH	DATA	083H
+
+LED		BIT	097h
+BUZZ		BIT	095h
+P		BIT	0D0H
+WYSW		BIT	096h

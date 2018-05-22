@@ -1,0 +1,1 @@
+asemw asd.asm > log.txt

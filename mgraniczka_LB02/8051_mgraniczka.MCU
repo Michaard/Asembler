@@ -1,0 +1,8 @@
+; Plik w³asnych definicji
+; Micha³ Graniczka
+; ==========================
+
+Port1	DATA	090h;
+
+LED	BIT	097h
+BUZZ	BIT	095h

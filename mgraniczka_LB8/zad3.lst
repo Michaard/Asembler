@@ -1,0 +1,169 @@
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 1
+
+
+
+
+
+       MCS-51 Family Macro Assembler   A S E M - 5 1   V 1.3
+       =====================================================
+
+
+
+	Source File:	zad3.asm
+	Object File:	zad3.hex
+	List File:	zad3.lst
+
+
+
+ Line  I  Addr  Code            Source
+
+    1:				$ NOMOD51
+    2:				$ INCLUDE (8051_mgraniczka.MCU)
+    3: 1			; Plik w³asnych definicji
+    4: 1			; Micha³ Graniczka
+    5: 1			; ==========================
+    6: 1
+    7: 1	N	 97	_LED		BIT	097h
+    8: 1	N	 96	_WYSW		BIT	096h
+    9: 1	N	 7F	_COUNTER	DATA	07Fh
+   10: 1	N	 7E	_ID_WSK		DATA	07Eh
+   11: 1	N	 7D	_W1_VAL		DATA	07Dh
+   12: 1	N	 7C	_W2_VAL		DATA	07Ch
+   13: 1	N	 7B	_W3_VAL		DATA	07Bh
+   14: 1	N	 7A	_FREQ		DATA	07Ah
+   15: 1	N	 88	TCON		DATA	088H
+   16: 1	N	 89	TMOD		DATA	089H
+   17: 1	N	 8A	TL0		DATA	08AH
+   18: 1	N	 8C	TH0		DATA	08CH
+   19: 1	N	 A8	IE		DATA	0A8H
+   20: 1	N	 F0	B		DATA	0F0H
+   21: 1	N	 B0	P3		DATA	0B0H
+   22:
+   23:		N      4BFF	T0_VAL EQU (65535-46080)
+   24:		N      00FF	TL0_VAL EQU (T0_VAL mod 256)
+   25:		N      004B	TH0_VAL EQU (T0_VAL/256)
+   26:		N      FF30	CSDS EQU 0FF30h
+   27:
+   28:		N      0000	ORG 0000h
+   29:	  0000			_RESET:
+   30:	  0000	02 01 00		LJMP _INIT
+   31:
+   32:		N      000B	ORG 0Bh
+   33:	  000B			_INT_T0:
+   34:	  000B	43 8A FF		ORL TL0,#TL0_VAL
+   35:	  000E	75 8C 4B		MOV TH0,#TH0_VAL
+   36:	  0011	05 7F			INC _COUNTER
+   37:	  0013	32			RETI
+   38:
+   39:		N      0100	ORG 0100h
+   40:	  0100			_INIT:
+   41:	  0100	75 8A FF		MOV TL0,#TL0_VAL
+   42:	  0103	75 8C 4B		MOV TH0,#TH0_VAL
+   43:
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 2
+
+
+
+ Line  I  Addr  Code            Source
+
+   44:	  0106	53 88 CF		ANL TCON,#11001111b
+   45:	  0109	53 89 F1		ANL TMOD,#11110001b
+   46:	  010C	43 89 01		ORL TMOD,#00000001b
+   47:	  010F	43 A8 82		ORL IE,#10000010b
+   48:
+   49:	  0112	75 7F 00		MOV _COUNTER,#0d
+   50:	  0115	75 7A 14		MOV _FREQ,#20d
+   51:	  0118	D2 B5			SETB P3.5
+   52:	  011A	90 FF 30		MOV DPTR,#CSDS
+   53:
+   54:	  011D	43 88 10		ORL TCON,#00010000b
+   55:	  0120			_LOOP:
+   56:	  0120	12 01 30		LCALL _READ_INPUT
+   57:	  0123	E5 7F			MOV A,_COUNTER
+   58:	  0125	B5 7A 05		CJNE A,_FREQ,_CD
+   59:	  0128	75 7F 00		MOV _COUNTER,#0d
+   60:	  012B	B2 97			CPL _LED
+   61:	  012D			_CD:
+   62:	  012D	02 01 20		LJMP _LOOP
+   63:
+   64:	  0130			_READ_INPUT:
+   65:	  0130				_IF:
+   66:	  0130	74 01				MOV A,#00000001b
+   67:	  0132	F0				MOVX @DPTR,A
+   68:	  0133	30 B5 08			JNB P3.5,_ELSIF1
+   69:	  0136	D2 97				SETB _LED
+   70:	  0138	75 7A 0A			MOV _FREQ,#10d
+   71:	  013B	02 01 57			LJMP _FINALLY
+   72:	  013E				_ELSIF1:
+   73:	  013E	74 02				MOV A,#00000010b
+   74:	  0140	F0				MOVX @DPTR,A
+   75:	  0141	30 B5 08			JNB P3.5,_ELSIF2
+   76:	  0144	D2 97				SETB _LED
+   77:	  0146	75 7A 14			MOV _FREQ,#20d
+   78:	  0149	02 01 57			LJMP _FINALLY
+   79:	  014C				_ELSIF2:
+   80:	  014C	74 04				MOV A,#00000100b
+   81:	  014E	F0				MOVX @DPTR,A
+   82:	  014F	30 B5 05			JNB P3.5,_FINALLY
+   83:	  0152	D2 97				SETB _LED
+   84:	  0154	75 7A 28			MOV _FREQ,#40d
+   85:	  0157				_FINALLY:
+   86:	  0157	22				RET
+   87:				END
+
+
+
+
+
+                     register banks used:  ---
+
+                     no errors
+
+
+
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 3
+
+
+
+
+
+	       L I S T   O F   S Y M B O L S
+	       =============================
+
+
+SYMBOL				  TYPE     VALUE	LINE
+------------------------------------------------------------
+??ASEM_51			  NUMBER    8051
+??VERSION			  NUMBER    0130
+B				  DATA	      F0	  20
+CSDS				  NUMBER    FF30	  26
+IE				  DATA	      A8	  19
+P3				  DATA	      B0	  21
+T0_VAL				  NUMBER    4BFF	  23
+TCON				  DATA	      88	  15
+TH0				  DATA	      8C	  18
+TH0_VAL				  NUMBER    004B	  25
+TL0				  DATA	      8A	  17
+TL0_VAL				  NUMBER    00FF	  24
+TMOD				  DATA	      89	  16
+_CD				  CODE	    012D	  61
+_COUNTER			  DATA	      7F	   9
+_ELSIF1				  CODE	    013E	  72
+_ELSIF2				  CODE	    014C	  79
+_FINALLY			  CODE	    0157	  85
+_FREQ				  DATA	      7A	  14
+_ID_WSK				  DATA	      7E	  10
+_IF				  CODE	    0130	  65
+_INIT				  CODE	    0100	  40
+_INT_T0				  CODE	    000B	  33
+_LED				  BIT	      97	   7
+_LOOP				  CODE	    0120	  55
+_READ_INPUT			  CODE	    0130	  64
+_RESET				  CODE	    0000	  29
+_W1_VAL				  DATA	      7D	  11
+_W2_VAL				  DATA	      7C	  12
+_W3_VAL				  DATA	      7B	  13
+_WYSW				  BIT	      96	   8

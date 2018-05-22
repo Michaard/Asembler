@@ -1,0 +1,490 @@
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 1
+
+
+
+
+
+       MCS-51 Family Macro Assembler   A S E M - 5 1   V 1.3
+       =====================================================
+
+
+
+	Source File:	ini.asm
+	Object File:	ini.hex
+	List File:	ini.lst
+
+
+
+ Line  I  Addr  Code            Source
+
+    1:				;	---------------------------------------------------------------------------------------
+    2:				;	program ini.asm - jest programem wzorcowym przeznaczonym dla studentów informatyki UMCS
+    3:				;	i rozpoczynaj¹cych pracê z zestawem dydaktycznym DSM51.
+    4:				;	autor: Jerzy Kotlinski, Lublin, 2005r
+    5:				;	---------------------------------------------------------------------------------------
+    6:
+    7:				$nomod51							; usuñ symbolikê SFR (8051)
+    8:				$include	(8051.MCU)					; do³¹cz symbolikê SFR kontrolera 80
+				51
+    9: 1			;   8051 processor definition file
+   10: 1			;   ==============================
+   11: 1
+   12: 1	N	 80	P0	DATA	080H
+   13: 1	N	 81	SP	DATA	081H
+   14: 1	N	 82	DPL	DATA	082H
+   15: 1	N	 83	DPH	DATA	083H
+   16: 1	N	 87	PCON	DATA	087H
+   17: 1	N	 88	TCON	DATA	088H
+   18: 1	N	 89	TMOD	DATA	089H
+   19: 1	N	 8A	TL0	DATA	08AH
+   20: 1	N	 8B	TL1	DATA	08BH
+   21: 1	N	 8C	TH0	DATA	08CH
+   22: 1	N	 8D	TH1	DATA	08DH
+   23: 1	N	 90	P1	DATA	090H
+   24: 1	N	 98	SCON	DATA	098H
+   25: 1	N	 99	SBUF	DATA	099H
+   26: 1	N	 A0	P2	DATA	0A0H
+   27: 1	N	 A8	IE	DATA	0A8H
+   28: 1	N	 B0	P3	DATA	0B0H
+   29: 1	N	 B8	IP	DATA	0B8H
+   30: 1	N	 D0	PSW	DATA	0D0H
+   31: 1	N	 E0	ACC	DATA	0E0H
+   32: 1	N	 F0	B	DATA	0F0H
+   33: 1
+   34: 1	N	 88	IT0	BIT	088H
+   35: 1	N	 89	IE0	BIT	089H
+   36: 1	N	 8A	IT1	BIT	08AH
+   37: 1	N	 8B	IE1	BIT	08BH
+   38: 1	N	 8C	TR0	BIT	08CH
+   39: 1	N	 8D	TF0	BIT	08DH
+   40: 1	N	 8E	TR1	BIT	08EH
+   41: 1	N	 8F	TF1	BIT	08FH
+   42: 1	N	 98	RI	BIT	098H
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 2
+
+
+
+ Line  I  Addr  Code            Source
+
+   43: 1	N	 99	TI	BIT	099H
+   44: 1	N	 9A	RB8	BIT	09AH
+   45: 1	N	 9B	TB8	BIT	09BH
+   46: 1	N	 9C	REN	BIT	09CH
+   47: 1	N	 9D	SM2	BIT	09DH
+   48: 1	N	 9E	SM1	BIT	09EH
+   49: 1	N	 9F	SM0	BIT	09FH
+   50: 1	N	 A8	EX0	BIT	0A8H
+   51: 1	N	 A9	ET0	BIT	0A9H
+   52: 1	N	 AA	EX1	BIT	0AAH
+   53: 1	N	 AB	ET1	BIT	0ABH
+   54: 1	N	 AC	ES	BIT	0ACH
+   55: 1	N	 AF	EA	BIT	0AFH
+   56: 1	N	 B0	RXD	BIT	0B0H
+   57: 1	N	 B1	TXD	BIT	0B1H
+   58: 1	N	 B2	INT0	BIT	0B2H
+   59: 1	N	 B3	INT1	BIT	0B3H
+   60: 1	N	 B4	T0	BIT	0B4H
+   61: 1	N	 B5	T1	BIT	0B5H
+   62: 1	N	 B6	WR	BIT	0B6H
+   63: 1	N	 B7	RD	BIT	0B7H
+   64: 1	N	 B8	PX0	BIT	0B8H
+   65: 1	N	 B9	PT0	BIT	0B9H
+   66: 1	N	 BA	PX1	BIT	0BAH
+   67: 1	N	 BB	PT1	BIT	0BBH
+   68: 1	N	 BC	PS	BIT	0BCH
+   69: 1	N	 D0	P	BIT	0D0H
+   70: 1	N	 D2	OV	BIT	0D2H
+   71: 1	N	 D3	RS0	BIT	0D3H
+   72: 1	N	 D4	RS1	BIT	0D4H
+   73: 1	N	 D5	F0	BIT	0D5H
+   74: 1	N	 D6	AC	BIT	0D6H
+   75: 1	N	 D7	CY	BIT	0D7H
+   76: 1
+   77: 1	N      0000	RESET	CODE	000H
+   78: 1	N      0003	EXTI0	CODE	003H
+   79: 1	N      000B	TIMER0	CODE	00BH
+   80: 1	N      0013	EXTI1	CODE	013H
+   81: 1	N      001B	TIMER1	CODE	01BH
+   82: 1	N      0023	SINT	CODE	023H
+   83:				$nolist							; wy³¹cz listowanie
+  129:
+  130:				;	###########################################################################################
+  131:				;	##################    s  t  a  r  t     p  r  o  g  r  a  m  u    #########################
+  132:				;	###########################################################################################
+  133:
+  134:		N      0000				org	0
+  135:	  0000			inicjacja:
+  136:	  0000	02 01 00				ljmp	start				; skocz do poczatku programu !!!
+  137:
+  138:				;		------------------------------------------------------
+  139:				;		  p r o c e d u r y   o b s l u g i   p r z e r w a n
+  140:				;		------------------------------------------------------
+  141:		N      000B				org	0bh				; INT od licznika T0 ukladu czasowo-
+				licznikowego
+  142:	  000B			t0_int:
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 3
+
+
+
+ Line  I  Addr  Code            Source
+
+  143:	  000B	43 8A 66				orl	tl0,#t0_dat mod 256	; ustaw licznik T0
+  144:	  000E	75 8C FC				mov	th0,#t0_dat	/ 256
+  145:	  0011	D2 02					setb	t0_flag			; ustaw flage zdarzenia (co 100ms)
+  146:	  0013	32					reti
+  147:
+  148:		N      0023				org	23h				; INT od portu szeregowego
+  149:	  0023			sio_int:
+  150:	  0023	10 99 05				jbc	ti,sint_20			; skocz, gdy pusty bufor nadajnika
+  151:	  0026	C2 98					clr ri		     		; zeruj flage odbioru bajtu
+  152:	  0028	D2 00					setb	rec_flag			; ustaw flage odebrania bajtu
+  153:	  002A	32					reti
+  154:	  002B			sint_20:							; dzialania zwiazane z faktem wyslan
+				ia bajtu
+  155:												; (w niniejszym przykladzie opcja be
+				z obslugi)
+  156:	  002B	32					reti
+  157:
+  158:
+  159:				;	###########################################################################################
+  160:				;	########    p  r  z  y  g  o  t  o  w  a  n  i  e      w  s  t  e  p  n  e    #############
+  161:				;	###########################################################################################
+  162:
+  163:		N      0100				org	0100h
+  164:	  0100			start:
+  165:	  0100	74 FF					mov	a,#255
+  166:	  0102	F5 90					mov	p1,a				; ustaw port P1
+  167:	  0104	F5 B0					mov	p3,a				; ustaw port P3
+  168:	  0106	75 81 64				mov	sp,#stos			; ustal adres poczatku stosu
+  169:
+  170:
+  171:				;		ustawienie rejestrow kontrolnych
+  172:				;		--------------------------------
+  173:	  0109	75 87 80				mov	pcon,#80h			; zegar dla sio: taktowanie T1 (1920
+				0 bitow/s)
+  174:	  010C	75 98 50				mov	scon,#01010000b		; ustawienie parametrow transmisji:
+  175:												; tryb 1: 8 znakow, szybkosc: T1
+  176:	  010F	75 89 21				mov	tmod,#00100001b		; ustalenie trybu pracy licznika: T1 w tryb
+				2
+  177:	  0112	75 88 00				mov	tcon,#00000000b		; T0 w tryb 1; bez przerwan INT_0 i INT_1
+  178:	  0115	75 8A 66				mov	tl0,#t0_dat mod 256	; ustawienie mlodszego i starszego bajtu
+  179:	  0118	75 8C FC				mov	th0,#t0_dat / 256		; licznika T0
+  180:	  011B	75 8B FD				mov	tl1,#0fdh			; ustawienie mlodszego i starszego b
+				ajtu
+  181:	  011E	75 8D FD				mov	th1,#0fdh			; licznika T1 (dla 19200 bitow/s)
+  182:
+  183:				;		ustawienie flag nadawania/odbioru przez rs232
+  184:				;		---------------------------------------------
+  185:	  0121	C2 01					clr	send_flag			; kasuj flage gotowosci nadawania
+  186:	  0123	C2 00					clr	rec_flag			; kasuj flage gotowosci odbioru
+  187:
+  188:				;		inne ustawienia
+  189:				;		---------------
+  190:	  0125	C2 02					clr	t0_flag			; kasuj flage przerwania t0_int
+  191:	  0127	C2 03					clr	timer_flag			; kasuj flage timera
+  192:	  0129	75 11 64				mov	timer_buf,#100		; laduj licznik timeout (100ms)
+  193:
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 4
+
+
+
+ Line  I  Addr  Code            Source
+
+  194:				;		ustawienie bitow systemu przerwan
+  195:				;		---------------------------------
+  196:	  012C	D2 BC					setb	ps				; ustaw prior. int od serial najwyze
+				j
+  197:	  012E	D2 A9					setb	et0				; wlacz int dla licznika T0
+  198:	  0130	D2 AC					setb	es				; wlacz int dla portu szeregowego
+  199:	  0132	D2 AF					setb	ea				; uaktywnij przerwania
+  200:
+  201:				;		uruchomienie ukladow czasowo-licznikowych T0 i T1
+  202:				;		-------------------------------------------------
+  203:	  0134	D2 8C					setb	tr0				; uruchom licznik T0
+  204:	  0136	D2 8E					setb	tr1				; uruchom licznik T1
+  205:
+  206:
+  207:				;	###########################################################################################
+  208:				;	####################    p  e  t  l  a      g  l  o  w  n  a     ###########################
+  209:				;	###########################################################################################
+  210:
+  211:	  0138			petla:
+  212:				;	testowanie:	czy w buforze odbiornika portu rs232 jest odebrany bajt
+  213:				;	-------------------------------------------------------------------
+  214:	  0138	30 00 05				jnb	rec_flag,ptl_20		; dalej gdy brak odbioru rs232
+  215:	  013B	C2 00					clr	rec_flag			; zeruj flage odebrania bajtu
+  216:	  013D	12 01 68				lcall	rec_service			; wykonaj obsluge odbioru bajtu
+  217:
+  218:	  0140			ptl_20:
+  219:				;	testowanie:	czy w buforze posrednim jest bajt do wyslania przez port rs232
+  220:				;	--------------------------------------------------------------------------
+  221:	  0140	30 01 05				jnb	send_flag,ptl_30		; dalej, gdy brak danej do wyslania
+  222:	  0143	C2 01					clr	send_flag			; zeruj flage nadawania bajtu
+  223:	  0145	12 01 71				lcall	send_service		; wykonaj obsluge nadawania
+  224:
+  225:	  0148			ptl_30:
+  226:				;	testowanie:	czy licznik T0 zakonczyl odliczanie ustalonego odcinka czasu (1ms)
+  227:				;	------------------------------------------------------------------------------
+  228:	  0148	30 02 05				jnb	t0_flag,ptl_40		; dalej gdy brak przerwania od licznika T0
+  229:	  014B	C2 02					clr	t0_flag			; zeruj flage
+  230:	  014D	12 01 5B				lcall	t0_service			; obsluz przerwanie od t0
+  231:
+  232:	  0150			ptl_40:
+  233:				;	testowanie:	czy nacisnieto jakis klawisz klawiatury (test co 100ms)
+  234:				;	-------------------------------------------------------------------
+  235:	  0150	30 03 05				jnb	timer_flag,ptl_50		; dalej gdy nie uplynelo jeszcze 100
+				ms
+  236:	  0153	C2 03					clr	timer_flag			; zeruj flage
+  237:	  0155	12 01 76				lcall	key_service			; obsluz klawiature
+  238:
+  239:	  0158			ptl_50:
+  240:	  0158	02 01 38				ljmp	petla
+  241:
+  242:
+  243:				;	###########################################################################################
+  244:				;	######################    p  o  d  p  r  o  g  r  a  m  y     #############################
+  245:				;	###########################################################################################
+  246:
+  247:
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 5
+
+
+
+ Line  I  Addr  Code            Source
+
+  248:
+  249:				;		------------------------------------------------------------------------------------
+				-
+  250:				;		obsluga przerwania od T0 (co 1 ms)
+  251:				;		------------------------------------------------------------------------------------
+				-
+  252:				;		opis:	z odstepem czasu wskazywanym przez stala t0_dat (1 ms), licznik T0 generuje
+  253:				;			przerwanie - w czasie obslugi tego przerwania odswiezany jest stan rejestrow
+
+  254:				;			licznika (patrz: t0_int). Podany nizej program ustawia flage 'timer_flag' co
+
+  255:				;			100 ms -> pozwala to na obsluge zdarzenia w petli, ktore powinno pojawic sie
+
+  256:				;			co 100ms
+  257:				;		------------------------------------------------------------------------------------
+				-
+  258:	  015B			t0_service:
+  259:	  015B	15 11					dec	timer_buf			; zmniejsz stan timera programowego
+  260:	  015D	E5 11					mov	a,timer_buf 		; laduj stan timera programowego
+  261:	  015F	60 01					jz	tose_10
+  262:	  0161	22					ret
+  263:	  0162			tose_10:
+  264:	  0162	D2 03					setb	timer_flag			; ustaw flage gdy uplynelo 100ms
+  265:	  0164	75 11 64				mov	timer_buf,#100		; regeneruj stan licznika (100ms)
+  266:	  0167	22					ret
+  267:
+  268:
+  269:
+  270:				;		------------------------------------------------------------------------------------
+				-
+  271:				;		obsluga przerwania od odbiornika portu rs232
+  272:				;		------------------------------------------------------------------------------------
+				-
+  273:				;		opis:	po odebraniu i skompletowaniu bajtu w buforze odbiornika portu rs232 jest
+  274:				;			generowane przerwnie, w wyniku ktorego jest ustawiana flaga 'rec_flag'
+  275:				;			(patrz: sio_int). Podany nizej program pobiera bajt, znienia jego kod
+  276:				;			i przekazuje do bufora nadawania
+  277:				;		------------------------------------------------------------------------------------
+				-
+  278:	  0168			rec_service:
+  279:	  0168	E5 99					mov	a,sbuf			; pobierz bajt z portu rs232
+  280:	  016A	24 E0					add	a,#256 - 32			; zamien kod bajtu (np. litera 'a' n
+				a litere 'A')
+  281:	  016C	F5 13					mov	send_bufor,a		; i zapamietaj
+  282:	  016E	D2 01					setb	send_flag			; ustaw flage gotowosci do nadawania
+				 przez rs232
+  283:	  0170	22					ret
+  284:
+  285:
+  286:
+  287:				;		------------------------------------------------------------------------------------
+				-
+  288:				;		obsluga zdarzenia zwiazanego z istnieniem bajtu gotowego do wyslania przez port rs23
+				2
+  289:				;		------------------------------------------------------------------------------------
+				-
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 6
+
+
+
+ Line  I  Addr  Code            Source
+
+  290:				;		opis:	po umieszczeniu bajtu w buforze 'send_bufor', fakt ten jest sygnalizowany
+  291:				;			przez ustawienie flagi 'send_flag'. Podany nizej program pobiera bajt z bufo
+				ra
+  292:				;			'send_bufor' i przemieszcza go do bufora nadajnika portu rs232 co powoduje
+  293:				;			automatyczne rozpoczecie jego nadawania
+  294:				;		------------------------------------------------------------------------------------
+				-
+  295:	  0171			send_service:
+  296:	  0171	F5 13					mov	send_bufor,a		; pobierz bajt do wyslania
+  297:	  0173	F5 99					mov	sbuf,a			; i rozpocznij jego nadawanie
+  298:	  0175	22					ret
+  299:
+  300:
+  301:
+  302:				;		------------------------------------------------------------------------------------
+				-
+  303:				;		obsluga klawiatury
+  304:				;		------------------------------------------------------------------------------------
+				-
+  305:				;		opis:	co 100ms powinien byc sprawdzony stan klawiatury. Podany nizej program testu
+				je
+  306:				;			stan klawisza ENTER - po jego nacisnieciu jest wl¹czany 'buzzer' a po
+  307:				;			zwolnieniu nacisku 'buzzer' jest wylaczany
+  308:				;		------------------------------------------------------------------------------------
+				-
+  309:	  0176			key_service:
+  310:	  0176	75 82 22				mov	dpl,#cskb1			; ustal adres klawiatury
+  311:	  0179	75 83 FF				mov	dph,#0ffh
+  312:	  017C	E0					movx	a,@dptr			; odczytaj stan klawiatury
+  313:	  017D	54 80					anl	a,#10000000b		; pozostaw bit 7 (stan k25)
+  314:	  017F	60 04					jz	kese_10			; dalej gdy klawisz nacisniety
+  315:				;			setb	p1.5				; ustaw bit p1.5 (wylacz buzzer)
+  316:	  0181	43 90 20				orl	p1,#00100000b		; ustaw bit p1.5 (wylacz buzzer)
+  317:	  0184	22					ret
+  318:	  0185			kese_10:
+  319:				;			clr	p1.5				; zeruj bit p1.5 (wlacz buzzer)
+  320:	  0185	53 90 DF				anl	p1,#11011111b		; zeruj bit p1.5 (wlacz buzzer)
+  321:	  0188	22					ret
+  322:
+  323:				end
+
+
+
+
+
+                     register banks used:  ---
+
+                     no errors
+
+
+
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 7
+
+
+
+
+
+	       L I S T   O F   S Y M B O L S
+	       =============================
+
+
+SYMBOL				  TYPE     VALUE	LINE
+------------------------------------------------------------
+??ASEM_51			  NUMBER    8051
+??VERSION			  NUMBER    0130
+AC				  BIT	      D6	  74
+ACC				  DATA	      E0	  31
+B				  DATA	      F0	  32
+CSKB1				  NUMBER    0022	 109
+CY				  BIT	      D7	  75
+DPH				  DATA	      83	  15
+DPL				  DATA	      82	  14
+EA				  BIT	      AF	  55
+ES				  BIT	      AC	  54
+ET0				  BIT	      A9	  51
+ET1				  BIT	      AB	  53
+EX0				  BIT	      A8	  50
+EX1				  BIT	      AA	  52
+EXTI0				  CODE	    0003	  78
+EXTI1				  CODE	    0013	  80
+F0				  BIT	      D5	  73
+IE				  DATA	      A8	  27
+IE0				  BIT	      89	  35
+IE1				  BIT	      8B	  37
+INICJACJA			  CODE	    0000	 135
+INT0				  BIT	      B2	  58
+INT1				  BIT	      B3	  59
+IP				  DATA	      B8	  29
+IT0				  BIT	      88	  34
+IT1				  BIT	      8A	  36
+KESE_10				  CODE	    0185	 318
+KEY_SERVICE			  CODE	    0176	 309
+OV				  BIT	      D2	  70
+P				  BIT	      D0	  69
+P0				  DATA	      80	  12
+P1				  DATA	      90	  23
+P2				  DATA	      A0	  26
+P3				  DATA	      B0	  28
+PCON				  DATA	      87	  16
+PETLA				  CODE	    0138	 211
+PS				  BIT	      BC	  68
+PSW				  DATA	      D0	  30
+PT0				  BIT	      B9	  65
+PT1				  BIT	      BB	  67
+PTL_20				  CODE	    0140	 218
+PTL_30				  CODE	    0148	 225
+PTL_40				  CODE	    0150	 232
+PTL_50				  CODE	    0158	 239
+PX0				  BIT	      B8	  64
+PX1				  BIT	      BA	  66
+RB8				  BIT	      9A	  44
+RD				  BIT	      B7	  63
+REC_BUFOR			  NUMBER    0012	 112
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 8
+
+
+
+SYMBOL				  TYPE     VALUE	LINE
+------------------------------------------------------------
+REC_FLAG			  BIT	      00	 120
+REC_SERVICE			  CODE	    0168	 278
+REN				  BIT	      9C	  46
+RESET				  CODE	    0000	  77
+RI				  BIT	      98	  42
+RS0				  BIT	      D3	  71
+RS1				  BIT	      D4	  72
+RXD				  BIT	      B0	  56
+SBUF				  DATA	      99	  25
+SCON				  DATA	      98	  24
+SEND_BUFOR			  NUMBER    0013	 113
+SEND_FLAG			  BIT	      01	 122
+SEND_SERVICE			  CODE	    0171	 295
+SINT				  CODE	    0023	  82
+SINT_20				  CODE	    002B	 154
+SIO_INT				  CODE	    0023	 149
+SM0				  BIT	      9F	  49
+SM1				  BIT	      9E	  48
+SM2				  BIT	      9D	  47
+SP				  DATA	      81	  13
+START				  CODE	    0100	 164
+STOS				  NUMBER    0064	 115
+T0				  BIT	      B4	  60
+T0_DAT				  NUMBER    FC66	 108
+T0_FLAG				  BIT	      02	 124
+T0_INT				  CODE	    000B	 142
+T0_SERVICE			  CODE	    015B	 258
+T1				  BIT	      B5	  61
+TB8				  BIT	      9B	  45
+TCON				  DATA	      88	  17
+TF0				  BIT	      8D	  39
+TF1				  BIT	      8F	  41
+TH0				  DATA	      8C	  21
+TH1				  DATA	      8D	  22
+TI				  BIT	      99	  43
+TIMER0				  CODE	    000B	  79
+TIMER1				  CODE	    001B	  81
+TIMER_BUF			  NUMBER    0011	 111
+TIMER_FLAG			  BIT	      03	 125
+TL0				  DATA	      8A	  19
+TL1				  DATA	      8B	  20
+TMOD				  DATA	      89	  18
+TOSE_10				  CODE	    0162	 263
+TR0				  BIT	      8C	  38
+TR1				  BIT	      8E	  40
+TXD				  BIT	      B1	  57
+WR				  BIT	      B6	  62

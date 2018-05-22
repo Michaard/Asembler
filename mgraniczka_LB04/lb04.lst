@@ -1,0 +1,105 @@
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 1
+
+
+
+
+
+       MCS-51 Family Macro Assembler   A S E M - 5 1   V 1.3
+       =====================================================
+
+
+
+	Source File:	lb04.asm
+	Object File:	lb04.hex
+	List File:	lb04.lst
+
+
+
+ Line  I  Addr  Code            Source
+
+    1:				$ NOMOD51
+    2:				$ INCLUDE (8051_mgraniczka.MCU)
+    3: 1			; Plik w³asnych definicji
+    4: 1			; Micha³ Graniczka
+    5: 1			; ==========================
+    6: 1
+    7: 1	N	 90	P1	DATA	090h
+    8: 1	N	 81	SP	DATA	081H
+    9: 1	N	 82	DPL	DATA	082H
+   10: 1	N	 83	DPH	DATA	083H
+   11: 1
+   12: 1	N	 97	LED		BIT	097h
+   13: 1	N	 95	BUZZ		BIT	095h
+   14: 1	N	 D0	P		BIT	0D0H
+   15: 1	N	 96	WYSW		BIT	096h
+   16:
+   17:		N      007F	_ST_POINTER EQU 07Fh
+   18:		N      FF38	CSDB16 EQU 0FF38h
+   19:		N      FF30	CSDS16 EQU 0FF30h
+   20:
+   21:		N      0000	ORG 0000h
+   22:	  0000			_RESET:
+   23:	  0000	02 01 00		LJMP _INIT
+   24:
+   25:		N      0100	ORG 0100h
+   26:	  0100			_INIT:
+   27:	  0100	C2 96			CLR WYSW
+   28:	  0102	75 81 7F		MOV SP,#_ST_POINTER
+   29:
+   30:	  0105	90 FF 30		MOV DPTR,#CSDS16
+   31:	  0108	74 40			MOV A,#01000000b
+   32:	  010A	F0			MOVX @DPTR,A
+   33:
+   34:	  010B	90 FF 38		MOV DPTR,#CSDB16
+   35:	  010E	74 3F			MOV A,#00111111b
+   36:	  0110	F0			MOVX @DPTR,A
+   37:	  0111			_LOOP:
+   38:	  0111	00			NOP
+   39:	  0112	02 01 11		LJMP _LOOP
+   40:				END
+
+
+
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 2
+
+
+
+
+
+                     register banks used:  ---
+
+                     no errors
+
+
+
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 3
+
+
+
+
+
+	       L I S T   O F   S Y M B O L S
+	       =============================
+
+
+SYMBOL				  TYPE     VALUE	LINE
+------------------------------------------------------------
+??ASEM_51			  NUMBER    8051
+??VERSION			  NUMBER    0130
+BUZZ				  BIT	      95	  13
+CSDB16				  NUMBER    FF38	  18
+CSDS16				  NUMBER    FF30	  19
+DPH				  DATA	      83	  10
+DPL				  DATA	      82	   9
+LED				  BIT	      97	  12
+P				  BIT	      D0	  14
+P1				  DATA	      90	   7
+SP				  DATA	      81	   8
+WYSW				  BIT	      96	  15
+_INIT				  CODE	    0100	  26
+_LOOP				  CODE	    0111	  37
+_RESET				  CODE	    0000	  22
+_ST_POINTER			  NUMBER    007F	  17

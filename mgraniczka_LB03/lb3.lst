@@ -1,0 +1,128 @@
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 1
+
+
+
+
+
+       MCS-51 Family Macro Assembler   A S E M - 5 1   V 1.3
+       =====================================================
+
+
+
+	Source File:	lb3.asm
+	Object File:	lb3.hex
+	List File:	lb3.lst
+
+
+
+ Line  I  Addr  Code            Source
+
+    1:				$ NOMOD51
+    2:				$ INCLUDE (8051_mgraniczka.MCU)
+    3: 1			; Plik w³asnych definicji
+    4: 1			; Micha³ Graniczka
+    5: 1			; ==========================
+    6: 1
+    7: 1	N	 90	Port1	DATA	090h;
+    8: 1
+    9: 1	N	 97	LED		BIT	097h
+   10: 1	N	 95	BUZZ		BIT	095h
+   11: 1	N	 D0	P		BIT	0D0h
+   12: 1	N	 00	flaga_buzz	BIT	00h
+   13:
+   14:		N      0000	ORG 0000h
+   15:	  0000			_RESET:
+   16:	  0000	02 01 00		LJMP _INIT
+   17:
+   18:		N      0100	ORG 0100h
+   19:	  0100			_INIT:
+   20:				;	MOV A,#255
+   21:	  0100	74 FE			MOV A,#254
+   22:	  0102	C2 00			CLR flaga_buzz
+   23:				;1
+   24:				;_IF1:
+   25:				;	JB P,_FI
+   26:				;	CLR LED
+   27:				;_FI:
+   28:
+   29:				;2
+   30:				;_IF2:
+   31:				;	JB P,_ELSE
+   32:				;	CLR LED
+   33:				;	LJMP _FI
+   34:				;_ELSE:
+   35:				;	CLR BUZZ
+   36:				;_FI:
+   37:
+   38:				;3
+   39:				;_IF3:
+   40:				;	JB P,_ELIF
+   41:				;	CLR LED
+   42:				;	LJMP _FI
+   43:				;_ELIF:
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 2
+
+
+
+ Line  I  Addr  Code            Source
+
+   44:				;	JNB flaga_buzz,_FI
+   45:				;	CLR BUZZ
+   46:				;_FI:
+   47:
+   48:				;4
+   49:	  0104			_IF4:
+   50:	  0104	20 D0 05		JB P,_ELIF
+   51:	  0107	C2 97			CLR LED
+   52:	  0109	02 01 14		LJMP _FI
+   53:	  010C			_ELIF:
+   54:	  010C	30 00 05		JNB flaga_buzz,_DEFAULT
+   55:	  010F	C2 95			CLR BUZZ
+   56:	  0111	02 01 14		LJMP _FI
+   57:	  0114			_DEFAULT:
+   58:	  0114			_FI:
+   59:
+   60:	  0114			_LOOP:
+   61:	  0114	00			NOP
+   62:	  0115	02 01 14		LJMP _LOOP
+   63:				END
+
+
+
+
+
+                     register banks used:  ---
+
+                     no errors
+
+
+
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 3
+
+
+
+
+
+	       L I S T   O F   S Y M B O L S
+	       =============================
+
+
+SYMBOL				  TYPE     VALUE	LINE
+------------------------------------------------------------
+??ASEM_51			  NUMBER    8051
+??VERSION			  NUMBER    0130
+BUZZ				  BIT	      95	  10
+FLAGA_BUZZ			  BIT	      00	  12
+LED				  BIT	      97	   9
+P				  BIT	      D0	  11
+PORT1				  DATA	      90	   7
+_DEFAULT			  CODE	    0114	  57
+_ELIF				  CODE	    010C	  53
+_FI				  CODE	    0114	  58
+_IF4				  CODE	    0104	  49
+_INIT				  CODE	    0100	  19
+_LOOP				  CODE	    0114	  60
+_RESET				  CODE	    0000	  15

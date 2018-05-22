@@ -1,0 +1,77 @@
+$ NOMOD51
+$ INCLUDE (8051_mgraniczka.MCU)
+LCDRC EQU 0FF82h
+LCDWC EQU 0FF80h
+LCDWD EQU 0FF81h
+
+ORG 0000h
+_RESET:
+	LJMP _INIT
+
+ORG 0100h
+_INIT:
+	MOV _COMMAND,#00000001b         ;clear display
+	LCALL _SEND_COMMAND_TO_LCD
+	MOV _COMMAND,#00111000b         ;8bit danych, 2 linie, czcionka 5x10
+	LCALL _SEND_COMMAND_TO_LCD
+	MOV _COMMAND,#00001111b			;wysw. ON, cursor ON i miganie
+	LCALL _SEND_COMMAND_TO_LCD
+	MOV _COMMAND,#00000110b         ;automatyczna inkrementacja adresu danej i podazanie kursora
+	LCALL _SEND_COMMAND_TO_LCD
+	
+	MOV R7,#0d
+_PRINT:
+	MOV DPTR,#_STRING
+	MOV A,R7
+	MOVC A,@A+DPTR
+
+	MOV _DATA,A
+	LCALL _SEND_DATA_TO_LCD
+	
+	INC R7
+	CJNE R7,#16d,_PRINT
+_LOOP:
+	LJMP _LOOP
+
+_WAIT_LCD_AV:
+	MOV DPTR,#LCDRC
+	MOVX A,@DPTR
+	MOV ACC,A
+	JNB ACC.7,_AV
+	JMP _WAIT_LCD_AV
+_AV:
+	RET
+
+_SEND_COMMAND_TO_LCD:
+	LCALL _WAIT_LCD_AV
+	MOV DPTR,#LCDWC
+	MOV A,_COMMAND
+	MOVX @DPTR,A
+	RET
+
+_SEND_DATA_TO_LCD:
+	LCALL _WAIT_LCD_AV
+	MOV DPTR,#LCDWD
+	MOV A,_DATA
+	MOVX @DPTR,A
+	RET
+
+_STRING:
+	DB 77	;M
+	DB 105 	;i
+	DB 99 	;c
+	DB 104 	;h
+	DB 97 	;a
+	DB 108	;l
+	DB 32	;_
+	DB 71 	;G
+	DB 114 	;r
+	DB 97 	;a
+	DB 110 	;n
+	DB 105 	;i
+	DB 99 	;c
+	DB 122 	;z
+	DB 107 	;k
+	DB 97 	;a
+
+END

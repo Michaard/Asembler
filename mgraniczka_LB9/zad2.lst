@@ -1,0 +1,187 @@
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 1
+
+
+
+
+
+       MCS-51 Family Macro Assembler   A S E M - 5 1   V 1.3
+       =====================================================
+
+
+
+	Source File:	zad2.asm
+	Object File:	zad2.hex
+	List File:	zad2.lst
+
+
+
+ Line  I  Addr  Code            Source
+
+    1:				$ NOMOD51
+    2:				$ INCLUDE (8051_mgraniczka.MCU)
+    3: 1			; Plik w³asnych definicji
+    4: 1			; Micha³ Graniczka
+    5: 1			; ==========================
+    6: 1
+    7: 1	N	 30	_COMMAND	DATA	030h
+    8: 1	N	 31	_DATA		DATA	031h
+    9: 1	N	 97	_LED		BIT		097h
+   10: 1	N	 96	_WYSW		BIT		096h
+   11: 1	N	 7F	_COUNTER	DATA	07Fh
+   12: 1	N	 7E	_ID_WSK		DATA	07Eh
+   13: 1	N	 7D	_W1_VAL		DATA	07Dh
+   14: 1	N	 7C	_W2_VAL		DATA	07Ch
+   15: 1	N	 7B	_W3_VAL		DATA	07Bh
+   16: 1	N	 7A	_FREQ		DATA	07Ah
+   17: 1	N	 88	TCON		DATA	088H
+   18: 1	N	 89	TMOD		DATA	089H
+   19: 1	N	 8A	TL0			DATA	08AH
+   20: 1	N	 8C	TH0			DATA	08CH
+   21: 1	N	 A8	IE			DATA	0A8H
+   22: 1	N	 F0	B			DATA	0F0H
+   23: 1	N	 B0	P3			DATA	0B0H
+   24: 1	N	 E0	ACC			DATA	0E0h
+   25:		N      FF82	LCDRC EQU 0FF82h
+   26:		N      FF80	LCDWC EQU 0FF80h
+   27:		N      FF81	LCDWD EQU 0FF81h
+   28:
+   29:		N      0000	ORG 0000h
+   30:	  0000			_RESET:
+   31:	  0000	02 01 00		LJMP _INIT
+   32:
+   33:		N      0100	ORG 0100h
+   34:	  0100			_INIT:
+   35:	  0100	75 30 01		MOV _COMMAND,#00000001b         ;clear display
+   36:	  0103	12 01 37		LCALL _SEND_COMMAND_TO_LCD
+   37:	  0106	75 30 38		MOV _COMMAND,#00111000b         ;8bit danych, 2 linie, czcionka 5x10
+   38:	  0109	12 01 37		LCALL _SEND_COMMAND_TO_LCD
+   39:	  010C	75 30 0F		MOV _COMMAND,#00001111b			;wysw. ON, cursor ON i miganie
+   40:	  010F	12 01 37		LCALL _SEND_COMMAND_TO_LCD
+   41:	  0112	75 30 06		MOV _COMMAND,#00000110b         ;automatyczna inkrementacja adresu danej i podazanie kursora
+   42:	  0115	12 01 37		LCALL _SEND_COMMAND_TO_LCD
+   43:
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 2
+
+
+
+ Line  I  Addr  Code            Source
+
+   44:	  0118	7F 00			MOV R7,#0d
+   45:	  011A			_PRINT:
+   46:	  011A	90 01 4B		MOV DPTR,#_STRING
+   47:	  011D	EF			MOV A,R7
+   48:	  011E	93			MOVC A,@A+DPTR
+   49:
+   50:	  011F	F5 31			MOV _DATA,A
+   51:	  0121	12 01 41		LCALL _SEND_DATA_TO_LCD
+   52:
+   53:	  0124	0F			INC R7
+   54:	  0125	BF 10 F2		CJNE R7,#16d,_PRINT
+   55:	  0128			_LOOP:
+   56:	  0128	02 01 28		LJMP _LOOP
+   57:
+   58:	  012B			_WAIT_LCD_AV:
+   59:	  012B	90 FF 82		MOV DPTR,#LCDRC
+   60:	  012E	E0			MOVX A,@DPTR
+   61:	  012F	F5 E0			MOV ACC,A
+   62:	  0131	30 E7 02		JNB ACC.7,_AV
+   63:	  0134	80 F5			JMP _WAIT_LCD_AV
+   64:	  0136			_AV:
+   65:	  0136	22			RET
+   66:
+   67:	  0137			_SEND_COMMAND_TO_LCD:
+   68:	  0137	12 01 2B		LCALL _WAIT_LCD_AV
+   69:	  013A	90 FF 80		MOV DPTR,#LCDWC
+   70:	  013D	E5 30			MOV A,_COMMAND
+   71:	  013F	F0			MOVX @DPTR,A
+   72:	  0140	22			RET
+   73:
+   74:	  0141			_SEND_DATA_TO_LCD:
+   75:	  0141	12 01 2B		LCALL _WAIT_LCD_AV
+   76:	  0144	90 FF 81		MOV DPTR,#LCDWD
+   77:	  0147	E5 31			MOV A,_DATA
+   78:	  0149	F0			MOVX @DPTR,A
+   79:	  014A	22			RET
+   80:
+   81:	  014B			_STRING:
+   82:	  014B	4D			DB 77	;M
+   83:	  014C	69			DB 105 	;i
+   84:	  014D	63			DB 99 	;c
+   85:	  014E	68			DB 104 	;h
+   86:	  014F	61			DB 97 	;a
+   87:	  0150	6C			DB 108	;l
+   88:	  0151	20			DB 32	;_
+   89:	  0152	47			DB 71 	;G
+   90:	  0153	72			DB 114 	;r
+   91:	  0154	61			DB 97 	;a
+   92:	  0155	6E			DB 110 	;n
+   93:	  0156	69			DB 105 	;i
+   94:	  0157	63			DB 99 	;c
+   95:	  0158	7A			DB 122 	;z
+   96:	  0159	6B			DB 107 	;k
+   97:	  015A	61			DB 97 	;a
+   98:
+   99:				END
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 3
+
+
+
+
+
+
+
+
+                     register banks used:  ---
+
+                     no errors
+
+
+
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 4
+
+
+
+
+
+	       L I S T   O F   S Y M B O L S
+	       =============================
+
+
+SYMBOL				  TYPE     VALUE	LINE
+------------------------------------------------------------
+??ASEM_51			  NUMBER    8051
+??VERSION			  NUMBER    0130
+ACC				  DATA	      E0	  24
+B				  DATA	      F0	  22
+IE				  DATA	      A8	  21
+LCDRC				  NUMBER    FF82	  25
+LCDWC				  NUMBER    FF80	  26
+LCDWD				  NUMBER    FF81	  27
+P3				  DATA	      B0	  23
+TCON				  DATA	      88	  17
+TH0				  DATA	      8C	  20
+TL0				  DATA	      8A	  19
+TMOD				  DATA	      89	  18
+_AV				  CODE	    0136	  64
+_COMMAND			  DATA	      30	   7
+_COUNTER			  DATA	      7F	  11
+_DATA				  DATA	      31	   8
+_FREQ				  DATA	      7A	  16
+_ID_WSK				  DATA	      7E	  12
+_INIT				  CODE	    0100	  34
+_LED				  BIT	      97	   9
+_LOOP				  CODE	    0128	  55
+_PRINT				  CODE	    011A	  45
+_RESET				  CODE	    0000	  30
+_SEND_COMMAND_TO_LCD		  CODE	    0137	  67
+_SEND_DATA_TO_LCD		  CODE	    0141	  74
+_STRING				  CODE	    014B	  81
+_W1_VAL				  DATA	      7D	  13
+_W2_VAL				  DATA	      7C	  14
+_W3_VAL				  DATA	      7B	  15
+_WAIT_LCD_AV			  CODE	    012B	  58
+_WYSW				  BIT	      96	  10
